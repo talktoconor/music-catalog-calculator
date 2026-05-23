@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Catalog Value Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14.5c0-1.38 1.79-2.5 4-2.5s4 1.12 4 2.5"/>
+            <circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="9" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Catalog Value Calculator</h1>
+          <p class="subtitle">Estimate earnings, audience reach & merch potential</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="input-section">
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+          </svg>
+        </div>
+        <input type="text" id="spotify-input" placeholder="Paste a Spotify artist link (e.g. https://open.spotify.com/artist/...)" autocomplete="off">
+        <button id="analyze-btn" onclick="analyzeArtist()">
+          <span class="btn-text">Analyze</span>
+          <span class="btn-loader" style="display:none"></span>
+        </button>
+      </div>
+      <div class="demo-note" id="demo-note" style="display:none">
+        <span class="demo-badge">DEMO MODE</span>
+        No Spotify API credentials configured. Using simulated data for demonstration.
+        <a href="#" onclick="showSetupInfo(); return false;">How to connect</a>
+      </div>
+      <div class="quick-links">
+        Try:
+        <a href="#" onclick="tryExample('06HL4z0CvFAxyc27GXpf02'); return false;">Taylor Swift</a>
+        <a href="#" onclick="tryExample('3TVXtAsR1Inumwj472S9r4'); return false;">Drake</a>
+        <a href="#" onclick="tryExample('6eUKZXaKkcviH0Ku9w2n3V'); return false;">Ed Sheeran</a>
+        <a href="#" onclick="tryExample('66CXWjxzNUsdJxJ2JdwvnR'); return false;">Ariana Grande</a>
+      </div>
+    </section>
+
+    <div id="error-msg" class="error-msg" style="display:none"></div>
+
+    <div id="results" style="display:none">
+      <section class="artist-hero" id="artist-hero">
+        <div class="artist-image-wrap">
+          <img id="artist-img" src="" alt="">
+        </div>
+        <div class="artist-info">
+          <h2 id="artist-name"></h2>
+          <div class="artist-meta">
+            <span class="meta-pill" id="artist-followers"></span>
+            <span class="meta-pill" id="artist-listeners"></span>
+            <span class="meta-pill" id="artist-genres"></span>
+          </div>
+          <div class="social-links" id="social-links"></div>
+        </div>
+        <div class="catalog-value-badge">
+          <div class="cv-label">Est. Catalog Value</div>
+          <div class="cv-amount" id="catalog-value">—</div>
+          <div class="cv-sub">annual revenue multiple</div>
+        </div>
+      </section>
+
+      <div class="grid-3">
+        <section class="card earnings-card">
+          <div class="card-header">
+            <h3>Streaming Revenue</h3>
+            <span class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </span>
+          </div>
+          <div class="earnings-total">
+            <span class="label">Est. Monthly Earnings</span>
+            <span class="amount" id="total-monthly">—</span>
+          </div>
+          <div class="platform-list" id="platform-list"></div>
+          <div class="earnings-annual">
+            <span>Projected Annual Revenue</span>
+            <span id="annual-revenue">—</span>
+          </div>
+        </section>
+
+        <section class="card audience-card">
+          <div class="card-header">
+            <h3>Audience Score</h3>
+            <span class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </span>
+          </div>
+          <div class="score-ring-container">
+            <div class="score-ring">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+                <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.29" stroke-dashoffset="339.29" transform="rotate(-90 60 60)"/>
+                <defs>
+                  <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1db954"/>
+                    <stop offset="100%" stop-color="#1ed760"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="score-value" id="score-value">—</div>
+            </div>
+            <div class="score-label" id="score-label">—</div>
+          </div>
+          <div class="score-breakdown" id="score-breakdown"></div>
+        </section>
+
+        <section class="card merch-card">
+          <div class="card-header">
+            <h3>Merch Potential</h3>
+            <span class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+            </span>
+          </div>
+          <div class="merch-tier" id="merch-tier">
+            <div class="merch-tier-label" id="merch-tier-label">—</div>
+            <div class="merch-tier-desc" id="merch-tier-desc">—</div>
+          </div>
+          <div class="merch-stats" id="merch-stats"></div>
+          <div class="merch-recs">
+            <h4>Recommended Products</h4>
+            <div id="merch-recs-list"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card top-tracks-card">
+        <div class="card-header">
+          <h3>Top Tracks Performance</h3>
+        </div>
+        <div class="tracks-table" id="tracks-table"></div>
+      </section>
+
+      <section class="methodology">
+        <details>
+          <summary>Methodology & Assumptions</summary>
+          <div class="method-content">
+            <p><strong>Streaming rates</strong> are based on publicly reported per-stream averages: Spotify ~$0.004, Apple Music ~$0.008, YouTube Music ~$0.002, Amazon Music ~$0.004, Tidal ~$0.010. Actual rates vary by country, subscription tier, and label deals.</p>
+            <p><strong>Cross-platform extrapolation</strong> assumes the artist has proportional presence on other platforms based on industry averages: Apple Music (~35% of Spotify streams), YouTube Music (~60%), Amazon Music (~20%), Tidal (~5%).</p>
+            <p><strong>Audience Score</strong> is a composite of monthly listeners, follower ratio, genre multiplier, and estimated social reach. Scale: 0–100.</p>
+            <p><strong>Merch potential</strong> is estimated using audience engagement, genre affinity for merchandise, and comparable artist benchmarks. Conversion rates range from 0.5–3% of active monthly listeners.</p>
+            <p><strong>Catalog valuation</strong> uses a revenue multiple (typically 10–30x annual) based on growth trajectory, catalog depth, and audience demographics.</p>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <div id="setup-modal" class="modal" style="display:none">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeSetupModal()">&times;</button>
+        <h3>Connect Spotify API</h3>
+        <ol>
+          <li>Go to <strong>developer.spotify.com/dashboard</strong></li>
+          <li>Create a new app (any name, set redirect URI to http://localhost:3000)</li>
+          <li>Copy your <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+          <li>Create a <code>.env</code> file in the project root:
+            <pre>SPOTIFY_CLIENT_ID=your_id_here
+SPOTIFY_CLIENT_SECRET=your_secret_here</pre>
+          </li>
+          <li>Restart the server</li>
+        </ol>
+        <p>The calculator works in demo mode without credentials, but live data gives more accurate results.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

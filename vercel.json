@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/config", "destination": "/api/config" },
+    { "source": "/api/artist/:id", "destination": "/api/artist/[id]" }
+  ]
+}
