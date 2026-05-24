@@ -2,12 +2,10 @@
   "name": "royaltree",
   "version": "1.0.0",
   "description": "Music catalog value calculator - estimate artist earnings, audience score, and merch potential",
-  "main": "server.js",
+  "main": "dev-server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js"
   },
-  "dependencies": {
-    "express": "^4.21.0"
-  }
+  "dependencies": {}
 }
