@@ -29,7 +29,15 @@ export default async function handler(req, res) {
   try {
     const token = await getSpotifyToken();
     if (!token) {
-      return res.status(500).json({ error: 'Spotify credentials not configured' });
+      return res.status(500).json({
+        error: 'Spotify credentials not configured',
+        debug: {
+          hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
+          hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
+          envKeys: Object.keys(process.env).filter(k => k.includes('SPOTIFY')),
+          id,
+        }
+      });
     }
 
     const artistResp = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
