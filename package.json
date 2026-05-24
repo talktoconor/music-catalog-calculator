@@ -1,5 +1,5 @@
 {
-  "name": "music-catalog-calculator",
+  "name": "royaltree",
   "version": "1.0.0",
   "description": "Music catalog value calculator - estimate artist earnings, audience score, and merch potential",
   "main": "server.js",
