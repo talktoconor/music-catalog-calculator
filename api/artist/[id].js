@@ -18,6 +18,10 @@ async function getSpotifyToken() {
   });
 
   const data = await resp.json();
+  if (data.error) {
+    console.error('Spotify token error:', data);
+    return null;
+  }
   spotifyToken = data.access_token;
   tokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
   return spotifyToken;
@@ -29,14 +33,24 @@ export default async function handler(req, res) {
   try {
     const token = await getSpotifyToken();
     if (!token) {
+      // Try getting token again and capture the raw Spotify response for debugging
+      const clientId = process.env.SPOTIFY_CLIENT_ID;
+      const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+      let tokenDebug = null;
+      if (clientId && clientSecret) {
+        const debugResp = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64'),
+          },
+          body: 'grant_type=client_credentials',
+        });
+        tokenDebug = await debugResp.json();
+      }
       return res.status(500).json({
-        error: 'Spotify credentials not configured',
-        debug: {
-          hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
-          hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
-          envKeys: Object.keys(process.env).filter(k => k.includes('SPOTIFY')),
-          id,
-        }
+        error: 'Failed to get Spotify token',
+        tokenResponse: tokenDebug,
       });
     }
 
