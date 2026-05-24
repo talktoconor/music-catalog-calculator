@@ -3,11 +3,6 @@
   "installCommand": "npm install",
   "buildCommand": "mkdir -p .output && cp -r public/* .output/",
   "outputDirectory": ".output",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3"
-    }
-  },
   "rewrites": [
     { "source": "/api/config", "destination": "/api/config" },
     { "source": "/api/artist/:id", "destination": "/api/artist/[id]" }
